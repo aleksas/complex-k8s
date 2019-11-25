@@ -3,40 +3,28 @@ sudo: required
 services:
   - docker
 
+env:
+  global:
+    - SHA=$(git rev-parse HEAD)
+    - CLOUDSDK_CORE_DISABLE_PROMPTS=1
 before_install:
   - openssl aes-256-cbc -K $encrypted_01b146fe9932_key -iv $encrypted_01b146fe9932_iv -in multi-k8s-260107-fa32da62c07f.json.enc -out multi-k8s-260107-fa32da62c07f.json -d
-  #- docker build -t aleksaspielikis/react-test -f ./client/Dockerfile.dev ./client
   - curl https://sdk.cloud.google.com | bash > /dev/null;
   - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
   - gcloud auth activate-service-account --key-file service-account.json
-  - 
+  - gcloud config set project multi-k8s-260107
+  - gcloud config set compute/zone europe-north1-a
+  - gcloud container clusters get-credentials multi-cluster
+  - echo $DOCKER_PASSWORD| docker login -u $DOCKER_ID --password-stdin
+  - docker build -t aleksaspielikis/react-test -f ./client/Dockerfile.dev ./client
 
 script:
   - docker run -e CI=true aleksaspielikis/react-test npm test
 
-after_success:
-  - docker build -t aleksaspielikis/multi-client ./client
-  - docker build -t aleksaspielikis/multi-nginx ./nginx
-  - docker build -t aleksaspielikis/multi-server ./server
-  - docker build -t aleksaspielikis/multi-worker ./worker
-  # Log in to docker CLI
-  - echo $DOCKER_PASSWORD| docker login -u $DOCKER_ID --password-stdin
-  # Take those images and push them to docker hub  
-  - docker push aleksaspielikis/multi-client
-  - docker push aleksaspielikis/multi-nginx
-  - docker push aleksaspielikis/multi-server
-  - docker push aleksaspielikis/multi-worker
-
-#deploy:
-#  edge: true
-#  provider: elasticbeanstalk
-#  region: eu-central-1
-#  app: multi-docker2
-#  env: MultiDocker2-env
-#  bucket_name: elasticbeanstalk-eu-central-1-883492279882
-#  bucket_path: multi-docker2
-#  on:
-#    branch: master
-#  access_key_id: $AWS_ACCESS_KEY
-#  secret_access_key: $AWS_SECRET_KEY
+deploy:
+  edge: true
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
