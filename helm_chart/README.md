@@ -1,0 +1,5 @@
+- [install](https://kubernetes.github.io/ingress-nginx/deploy/) ingress controller into kubectl
+- add postgress pgpassword PGPASSWORD secret.
+  - `kubectl create secret generic postgress --from-literal=PGPASSWORD=your-password`
+- [install Helm](https://helm.sh/docs/intro/install/)
+- install this helm chart: `helm install --name my-release .`

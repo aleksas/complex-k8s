@@ -1,0 +1,22 @@
+{{- if .Values.client.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-client-deployment
+spec:
+  replicas: {{ .Values.client.replicas }}
+  selector:
+    matchLabels:
+      component: web
+  template:
+    metadata:
+      labels:
+        component: web
+    spec:
+      containers:
+        - name: client
+          image: {{ .Values.client.image }}
+          ports:
+            - containerPort: 3000
+{{- end }}

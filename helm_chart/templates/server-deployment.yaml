@@ -1,0 +1,41 @@
+{{- if .Values.postgres.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-server-deployment
+spec:
+  replicas: {{ .Values.server.replicas }}
+  selector:
+    matchLabels:
+      component: server
+  template:
+    metadata:
+      labels:
+        component: server
+    spec:
+      containers:
+        - name: server
+          image: {{ .Values.server.image }}
+          ports:
+            - containerPort: 5000
+          env:
+            - name: REDIS_HOST
+              value: {{ $fullName }}-redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: {{ .Values.redis.clusterPort | quote }}
+            - name: PGUSER
+              value: postgres
+            - name: PGHOST
+              value: {{ $fullName }}-postgres-cluster-ip-service
+            - name: PGPORT
+              value: {{ .Values.postgres.clusterPort | quote }}
+            - name: PGDATABASE
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                {{- range $k,$v := .Values.postgres.secretKeyRef }}
+                  {{ $k }} : {{ $v }}
+                {{- end }}
+{{- end }}

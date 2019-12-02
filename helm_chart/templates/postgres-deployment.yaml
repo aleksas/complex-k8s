@@ -1,0 +1,37 @@
+{{- if .Values.postgres.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-postgres-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: postgres
+  template:
+    metadata:
+      labels:
+        component: postgres
+    spec:
+      volumes:
+        - name: postgres-storage
+          persistentVolumeClaim:
+            claimName: {{ $fullName }}-database-persistent-volume-claim
+      containers:
+        - name: postgres
+          image: postgres
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-storage
+              mountPath: /var/lib/postgresql/data
+              subPath: postgres
+          env:
+            - name: {{ .Values.postgres.secretKeyRef.name }}
+              valueFrom:
+                secretKeyRef:
+                {{- range $k,$v := .Values.postgres.secretKeyRef }}
+                  {{ $k }} : {{ $v }}
+                {{- end }}
+{{- end }}

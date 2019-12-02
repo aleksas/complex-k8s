@@ -1,0 +1,17 @@
+{{- if .Values.postgres.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+kind: PersistentVolume
+apiVersion: v1
+metadata:
+  name: {{ $fullName }}-database-persistent-volume
+  labels:
+    type: local
+spec:
+  storageClassName: manual
+  capacity:
+    storage: {{ .Values.postgres.storage }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: "/mnt"
+{{- end }}

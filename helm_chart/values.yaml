@@ -1,0 +1,42 @@
+# Default values for complex-k8s.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+worker:
+  enabled: true
+  image: aleksaspielikis/multi-worker
+
+client:
+  enabled: true
+  replicas: 3
+  image: aleksaspielikis/multi-client
+
+server:
+  enabled: true
+  replicas: 3
+  image: aleksaspielikis/multi-server
+
+redis:
+  enabled: true
+  clusterPort: 6379
+
+postgres:
+  enabled: true
+  clusterPort: 5432
+  storage: 2Gi
+  secretKeyRef:
+    name: pgpassword
+    key: PGPASSWORD
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /$1
+  expose:
+    client:
+      path: /?(.*)
+      clusterPort: 3000
+    server:
+      path: /api/?(.*)
+      clusterPort: 5000

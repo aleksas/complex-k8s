@@ -1,0 +1,27 @@
+{{- if .Values.worker.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ $fullName }}-worker-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: worker
+  template:
+    metadata:
+      labels:
+        component: worker
+    spec:
+      containers:
+        - name: worker
+          image: {{ .Values.worker.image -}}
+          {{- if .Values.redis.enabled }}
+          env:
+            - name: REDIS_HOST
+              value: {{ $fullName }}-redis-cluster-ip-service
+            - name: REDIS_PORT
+              value: {{ .Values.redis.clusterPort | quote }}
+          {{- end -}}
+{{- end }}

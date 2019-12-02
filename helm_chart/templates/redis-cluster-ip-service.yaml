@@ -1,0 +1,14 @@
+{{- if .Values.ingress.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-redis-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: redis
+  ports:
+    - port: {{ .Values.redis.clusterPort }}
+      targetPort: 6379
+{{- end }}

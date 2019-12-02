@@ -1,0 +1,14 @@
+{{- if .Values.postgres.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-postgres-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: postgres
+  ports:
+    - port: {{ .Values.postgres.clusterPort }}
+      targetPort: 5432
+{{- end }}

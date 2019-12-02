@@ -1,0 +1,15 @@
+{{- if .Values.client.enabled -}}
+{{- $fullName := include "complex-k8s.fullname" . -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ $fullName }}-client-cluster-ip-service
+spec:
+  type: ClusterIP
+  selector:
+    component: web
+  ports:
+    - port: {{ .Values.ingress.expose.client.clusterPort }}
+      targetPort: 3000
+
+{{- end }}
