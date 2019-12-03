@@ -7,7 +7,7 @@ Use old helm charts for elastic/* from repo https://kubernetes-charts.storage.go
     - `minikube addons enable ingress`
     - `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml`
 - add postgress pgpassword PGPASSWORD secret.
-  - `kubectl create secret generic postgress --from-literal=PGPASSWORD=your-password`
+  - `kubectl create secret generic pgpassword --from-literal=PGPASSWORD=your-password`
 - [install Helm](https://helm.sh/docs/intro/install/)
 - install this helm chart: `helm install --name my-release .`
 - run port-forwarding to access kibana `kubectl port-forward my-release-kibana-86cb9c996d-zchlr 5601:5601`
