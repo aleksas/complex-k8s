@@ -20,6 +20,30 @@ redis:
   enabled: true
   clusterPort: 6379
 
+metricbeat:
+  enabled: true
+
+kibana:
+  enabled: true
+  env:
+    ELASTICSEARCH_HOSTS: http://{{ .Release.Name }}-elasticsearch-client:9200
+
+elasticsearch:
+  enabled: true
+  antiAffinity: "soft"
+  esJavaOpts: -Xmx256m -Xms256m
+  resources:
+    requests:
+      cpu: "100m"
+      memory: "512M"
+    limits:
+      cpu: "1000m"
+      memory: "512M"
+
+  # Request smaller persistent volumes.
+  persistence:
+    size: 100M
+
 postgres:
   enabled: true
   clusterPort: 5432
