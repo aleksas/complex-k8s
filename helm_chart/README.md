@@ -12,6 +12,7 @@ Use old helm charts for elastic/* from repo https://kubernetes-charts.storage.go
 # Not working
 Try to run elastic/elasticsearch from elastic repo https://helm.elastic.co/. 
 
+Filed an [issue](https://github.com/elastic/helm-charts/issues/388)
 
 `helm install --name elasticsearch elastic/elasticsearch` doesn't work.  Trying it even with `--set replicas=1` (as indicated [here](https://github.com/elastic/helm-charts/issues/312#issuecomment-538004608)) or `antiAfinity=soft` (as indicated [here](https://discuss.elastic.co/t/elasticsearch-with-helm-charts-caused-by-java-nio-file-accessdeniedexception-usr-share-elasticsearch-data-nodes/174297/8?u=aleksas)) or `discovery.type=single-node` (seen [here](https://stackoverflow.com/q/51201699/1433554) and [here]()) results in :
 
