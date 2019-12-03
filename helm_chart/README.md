@@ -2,6 +2,10 @@
 Use old helm charts for elastic/* from repo https://kubernetes-charts.storage.googleapis.com/ .
 
 - [install](https://kubernetes.github.io/ingress-nginx/deploy/) ingress controller into kubectl
+  - for minkube run:
+    - `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/mandatory.yaml`
+    - `minikube addons enable ingress`
+    - `kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/master/deploy/static/provider/cloud-generic.yaml`
 - add postgress pgpassword PGPASSWORD secret.
   - `kubectl create secret generic postgress --from-literal=PGPASSWORD=your-password`
 - [install Helm](https://helm.sh/docs/intro/install/)
