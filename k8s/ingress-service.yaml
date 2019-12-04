@@ -19,4 +19,4 @@ spec:
           # UPDATE THIS LINE ABOVE
             backend:
               serviceName: server-cluster-ip-service
-              servicePort: 5000
+              servicePort: 3030
