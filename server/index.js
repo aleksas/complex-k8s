@@ -40,18 +40,23 @@ app.get('/', (req, res) => {
 });
 
 app.get('/values/all', async (req, res) => {
+  console.log('GET /values/all');
+
   const values = await pgClient.query('SELECT * from values');
 
   res.send(values.rows);
 });
 
 app.get('/values/current', async (req, res) => {
+  console.log('GET /values/current');
   redisClient.hgetall('values', (err, values) => {
     res.send(values);
   });
 });
 
 app.post('/values', async (req, res) => {
+  console.log('POST values');
+
   const index = req.body.index;
 
   if (parseInt(index) > 40) {
@@ -65,6 +70,6 @@ app.post('/values', async (req, res) => {
   res.send({ working: true });
 });
 
-app.listen(3030, err => {
+app.listen(5000, err => {
   console.log('Listening');
 });
