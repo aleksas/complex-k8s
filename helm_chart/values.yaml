@@ -25,24 +25,21 @@ metricbeat:
 
 kibana:
   enabled: true
-  env:
-    ELASTICSEARCH_HOSTS: http://{{ .Release.Name }}-elasticsearch-client:9200
+  server:
+    basePath: /kibana
+    rewriteBasePath: true
+  extraEnvs:
+  - name: SERVER_BASEPATH
+    value: /kibana/app/kibana
 
 elasticsearch:
   enabled: true
   antiAffinity: "soft"
-  esJavaOpts: -Xmx256m -Xms256m
-  resources:
-    requests:
-      cpu: "100m"
-      memory: "512M"
-    limits:
-      cpu: "1000m"
-      memory: "512M"
-
-  # Request smaller persistent volumes.
-  persistence:
-    size: 100M
+  
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 10Gi
 
 postgres:
   enabled: true
@@ -61,6 +58,9 @@ ingress:
     client:
       path: /?(.*)
       clusterPort: 3000
+    kibana:
+      path: /kibana/?(.*)
+      clusterPort: 5601
     server:
       path: /api/?(.*)
       clusterPort: 5000

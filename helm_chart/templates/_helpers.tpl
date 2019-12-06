@@ -58,9 +58,14 @@ Create the name of the service account to use
 {{- define "complex-k8s.specRulesHttpPaths" }}
 {{- $fullName := include "complex-k8s.fullname" . -}}
 {{- range $k,$v := .Values.ingress.expose }}
-  - path: {{ $v.path }}
-    backend:
-        serviceName: {{ printf "%s-%s-cluster-ip-service"  $fullName  $k }}
-        servicePort: {{ $v.clusterPort }}
+- path: {{ $v.path }}
+  backend:
+{{ if eq $k "kibana" }}
+    serviceName: {{ printf "%s-%s"  $.Release.Name  $k }}
+    servicePort: {{ $v.clusterPort }}
+{{ else }}
+    serviceName: {{ printf "%s-%s-cluster-ip-service"  $fullName  $k }}
+    servicePort: {{ $v.clusterPort }}
+{{ end }}
 {{- end -}}
 {{- end -}}

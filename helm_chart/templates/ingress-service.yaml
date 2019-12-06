@@ -26,7 +26,7 @@ spec:
   {{- end }}
 {{- end }}
   rules:
-    - http:
-        paths:
-        {{- include "complex-k8s.specRulesHttpPaths" . | indent 8 -}}
+  - http:
+      paths:
+      {{- include "complex-k8s.specRulesHttpPaths" . | indent 8 -}}
 {{- end }}
