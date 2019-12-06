@@ -1,9 +1,12 @@
 dependencies:
 - name: elasticsearch
   repository: https://helm.elastic.co
-  version: 7.4.1
+  version: 7.5.0
 - name: kibana
   repository: https://helm.elastic.co
-  version: 7.4.1
-digest: sha256:1f4b62f7a6c9a96eabfc1d0e7653cd2571c763988b3c5740aaccfdac1be1789a
-generated: "2019-12-05T16:02:16.1290518+02:00"
+  version: 7.5.0
+- name: metricbeat
+  repository: https://helm.elastic.co
+  version: 7.5.0
+digest: sha256:0a50d7d79084b5240a36cfdda66fb9f7919cf884697e331d5d6b5c1c94a33f32
+generated: "2019-12-06T15:35:52.995791+02:00"
