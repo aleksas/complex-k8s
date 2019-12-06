@@ -12,6 +12,8 @@ Use old helm charts for elastic/* from repo https://kubernetes-charts.storage.go
 - install this helm chart: `helm install --name my-release .`
 - run port-forwarding to access kibana `kubectl port-forward my-release-kibana-86cb9c996d-zchlr 5601:5601`
 
+# to-do
+- [elk-stack-on-kubernetes-with-helm](https://logz.io/blog/deploying-the-elk-stack-on-kubernetes-with-helm/)
 
 # Not working
 Try to run elastic/elasticsearch from elastic repo https://helm.elastic.co/. 
