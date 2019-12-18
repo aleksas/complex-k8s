@@ -11,3 +11,7 @@ dependencies:
   version: ^7.4.1
   repository: https://helm.elastic.co
   condition: metricbeat.enabled
+- name: filebeat
+  version: ^7.4.1
+  repository: https://helm.elastic.co
+  condition: filebeat.enabled
