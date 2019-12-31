@@ -22,26 +22,79 @@ redis:
 
 metricbeat:
   enabled: true
+  metricbeatConfig:
+    kube-state-metrics-metricbeat.yml: |
+      metricbeat.modules:
+      - module: kubernetes
+        enabled: true
+        metricsets:
+          - state_node
+          - state_deployment
+          - state_replicaset
+          - state_pod
+          - state_container
+        period: 10s
+        hosts: ["${KUBE_STATE_METRICS_HOSTS}"]
+
+      output.elasticsearch:
+        hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
+
+      setup:
+        kibana:
+          host: '${KIBANA_HOST:my-release-kibana}:${KIBANA_PORT:5601}'
+        dashboards:
+          enabled: true
+    metricbeat.yml: |
+      system:
+        hostfs: /hostfs
+      metricbeat.autodiscover: #https://www.elastic.co/guide/en/beats/metricbeat/current/configuration-autodiscover.html
+        providers:
+        - type: kubernetes
+          labels.dedot: true
+          templates:
+            - condition:
+                contains:
+                  kubernetes.container.image: "redis"
+              config:
+                - module: redis
+                  metricsets: ["info", "keyspace"]
+                  hosts: "${data.host}:6379"
+                  period: 10s
+      output.elasticsearch:
+        hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
 
 filebeat:
   enabled: true
-  autodiscover:
-    providers:
-      - type: kubernetes
-        templates:
-          - condition.contains:
-              kubernetes.labels:
-                component: redis
-            config:
-              - module: redis
-                log:
-                  input:
-                    type: docker
-                    containers.ids:
-                      - ${data.kubernetes.container.id}
-                slowlog:
-                  enabled: true
-                  var.hosts: ["${data.host}:${data.port}"]
+  filebeatConfig:
+    filebeat.yml: |-
+      filebeat.autodiscover:
+        providers:
+          - type: kubernetes
+            templates:
+              - condition.contains:
+                  kubernetes.container.image: "redis"
+                config:
+                  - module: redis
+                    log:
+                      input:
+                        type: container
+                        containers.ids:
+                          - ${data.kubernetes.container.id}
+                    slowlog:
+                      enabled: false
+                          
+      processors:
+        - add_host_metadata:
+        
+      output.elasticsearch:
+        host: '${NODE_NAME}'
+        hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
+
+      setup:
+        kibana:
+          host: '${KIBANA_HOST:my-release-kibana}:${KIBANA_PORT:5601}'
+        dashboards:
+          enabled: true
 
 kibana:
   enabled: true
