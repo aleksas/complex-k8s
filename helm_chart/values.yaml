@@ -70,9 +70,16 @@ filebeat:
       filebeat.autodiscover:
         providers:
           - type: kubernetes
+            host: ${NODE_NAME}
+            hints.enabled: true
+            hints.default_config:
+              type: container
+              paths:
+                - /var/log/containers/*${data.kubernetes.container.id}.log
             templates:
-              - condition.contains:
-                  kubernetes.container.image: "redis"
+              - condition:
+                  contains:
+                    kubernetes.container.image: redis
                 config:
                   - module: redis
                     log:
@@ -81,7 +88,10 @@ filebeat:
                         containers.ids:
                           - ${data.kubernetes.container.id}
                     slowlog:
-                      enabled: false
+                      input:
+                        type: container
+                        containers.ids:
+                          - ${data.kubernetes.container.id}
                           
       processors:
         - add_host_metadata:

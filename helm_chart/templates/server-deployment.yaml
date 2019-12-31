@@ -17,6 +17,7 @@ spec:
       containers:
         - name: server
           image: {{ .Values.server.image }}
+          imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 5000
           env:
