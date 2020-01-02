@@ -1,6 +1,7 @@
 # Default values for complex-k8s.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
+# see https://www.elastic.co/guide/en/beats/filebeat/current/configuration-autodiscover.html
 
 worker:
   enabled: true
@@ -60,47 +61,78 @@ metricbeat:
                   metricsets: ["info", "keyspace"]
                   hosts: "${data.host}:6379"
                   period: 10s
+            - condition:
+                contains:
+                  kubernetes.container.image: "postgres"
+              config:
+                - module: postgresql
+                  metricsets: ["activity", "bgwriter", "database"]
+                  hosts: "${data.host}:5432?sslmode=disable"
+                  username: ${PGUSER}
+                  password: ${PGPASSWORD}
+                  period: 10s
       output.elasticsearch:
         hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
+        
+  extraEnvs:
+    - name: PGUSER
+      value: postgres
+    - name: PGPASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: pgpassword
+          key: PGPASSWORD
 
 filebeat:
   enabled: true
   filebeatConfig:
     filebeat.yml: |-
+      logging.metrics.enabled: false
+
+      filebeat.config.modules:
+        enabled: true
+        path: ${path.config}/modules.d/*.yml
+        
       filebeat.autodiscover:
         providers:
           - type: kubernetes
-            host: ${NODE_NAME}
-            hints.enabled: true
-            hints.default_config:
-              type: container
-              paths:
-                - /var/log/containers/*${data.kubernetes.container.id}.log
             templates:
               - condition:
                   contains:
-                    kubernetes.container.image: redis
+                    kubernetes.container.image: "redis"
                 config:
                   - module: redis
                     log:
+                      enabled: true
                       input:
                         type: container
-                        containers.ids:
-                          - ${data.kubernetes.container.id}
+                        paths:
+                          - /var/log/containers/*-${data.kubernetes.container.id}.log
                     slowlog:
+                      enabled: true
+                      var.hosts: ["${data.host}:${data.port}"]
+              - condition:
+                  contains:
+                    kubernetes.container.image: "postgres"
+                config:
+                  - module: postgresql
+                    log:
+                      enabled: true
                       input:
                         type: container
-                        containers.ids:
-                          - ${data.kubernetes.container.id}
-                          
+                        paths:
+                          - /var/log/containers/*-${data.kubernetes.container.id}.log
+
       processors:
-        - add_host_metadata:
+        - add_kubernetes_metadata:
+        - add_docker_metadata:
         
       output.elasticsearch:
         host: '${NODE_NAME}'
         hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
 
       setup:
+        template.enabled: true
         kibana:
           host: '${KIBANA_HOST:my-release-kibana}:${KIBANA_PORT:5601}'
         dashboards:
