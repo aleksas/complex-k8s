@@ -87,49 +87,39 @@ filebeat:
   enabled: true
   filebeatConfig:
     filebeat.yml: |-
-      logging.metrics.enabled: false
-
-      filebeat.config.modules:
-        enabled: true
-        path: ${path.config}/modules.d/*.yml
-        
       filebeat.autodiscover:
         providers:
           - type: kubernetes
             templates:
-              - condition:
-                  contains:
-                    kubernetes.container.image: "redis"
+              - condition.contains:
+                  kubernetes.labels.app: redis
                 config:
                   - module: redis
                     log:
-                      enabled: true
                       input:
-                        type: container
-                        paths:
-                          - /var/log/containers/*-${data.kubernetes.container.id}.log
+                        type: docker
+                        containers.ids:
+                          - ${data.kubernetes.container.id}
                     slowlog:
                       enabled: true
                       var.hosts: ["${data.host}:${data.port}"]
-              - condition:
-                  contains:
-                    kubernetes.container.image: "postgres"
+              - condition.equals:
+                  kubernetes.labels.app: postgres
                 config:
                   - module: postgresql
                     log:
-                      enabled: true
                       input:
-                        type: container
-                        paths:
-                          - /var/log/containers/*-${data.kubernetes.container.id}.log
-
+                        type: docker
+                        containers.ids:
+                          - ${data.kubernetes.container.id}
       processors:
-        - add_kubernetes_metadata:
-        - add_docker_metadata:
+        - add_host_metadata:
         
       output.elasticsearch:
         host: '${NODE_NAME}'
         hosts: '${ELASTICSEARCH_HOSTS:elasticsearch-master:9200}'
+
+      logging.metrics.enabled: false
 
       setup:
         template.enabled: true
