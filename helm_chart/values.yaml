@@ -103,7 +103,7 @@ filebeat:
                     slowlog:
                       enabled: true
                       var.hosts: ["${data.host}:${data.port}"]
-              - condition.equals:
+              - condition.contains:
                   kubernetes.container.image: postgres
                 config:
                   - module: postgresql
