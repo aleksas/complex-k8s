@@ -92,7 +92,7 @@ filebeat:
           - type: kubernetes
             templates:
               - condition.contains:
-                  kubernetes.labels.app: redis
+                  kubernetes.container.image: redis
                 config:
                   - module: redis
                     log:
@@ -104,7 +104,7 @@ filebeat:
                       enabled: true
                       var.hosts: ["${data.host}:${data.port}"]
               - condition.equals:
-                  kubernetes.labels.app: postgres
+                  kubernetes.container.image: postgres
                 config:
                   - module: postgresql
                     log:
